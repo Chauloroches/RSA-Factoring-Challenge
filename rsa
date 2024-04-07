@@ -1,0 +1,45 @@
+#!/usr/bin/python3
+import sys
+import random
+
+def gcd(a, b):
+    while b:
+        a, b = b, a % b
+    return a
+
+def pollard_rho(n):
+    if n % 2 == 0:
+        return 2
+    x = random.randint(1, n-1)
+    y = x
+    c = random.randint(1, n-1)
+    d = 1
+    while d == 1:
+        x = (pow(x, 2, n) + c) % n
+        y = (pow(y, 2, n) + c) % n
+        y = (pow(y, 2, n) + c) % n
+        d = gcd(abs(x - y), n)
+    return d
+
+def factorize_rsa_number(n):
+    factors = []
+    while n > 1:
+        factor = pollard_rho(n)
+        factors.append(factor)
+        n //= factor
+    return factors
+
+def main(filename):
+    with open(filename, 'r') as file:
+        n = int(file.readline().strip())
+        factors = factorize_rsa_number(n)
+        if len(factors) == 2:
+            print(f"{n}={factors[0]}*{factors[1]}")
+        else:
+            print("Factorization failed within the time limit.")
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: rsa_prime_factors <file>")
+        sys.exit(1)
+    main(sys.argv[1])
